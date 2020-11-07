@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 
 public class Modificador {
-    private final String[] [] personas;
+    private final String[] [] personas; //Filas: Personas ; Columnas: Datos necesarios
     private int numeroPersonas;
     public Modificador(String archivo,Archivo a){
         this.personas = new String[20][10];
@@ -35,15 +35,33 @@ public class Modificador {
         
         this.ordenamiento(a);
         
+        int[] Estados;
+        String[] nomEstados = new String[32];
+        EnumEstado[] estados = EnumEstado.values();
+        Estados = this.contarEstados();
+        for(i=0;i<nomEstados.length;i++){
+            nomEstados[i] = estados[i].name();
+            nomEstados[i] += ": ";
+        }
+
         for(i = 0;i<this.numeroPersonas+1;i++){
            a.salida(this.personas[i][1]+","+this.formatearFecha(this.personas[i][2])+","+this.personas[i][3]);
 
         }
+        a.salida("Numero de personas por Estado: ");
+        for(i=0;i<nomEstados.length;i++){
+            if(Estados[i] !=0){
+                a.salida(nomEstados[i]+Estados[i]);
+            }
+        }
     }
+    
+    
+    
     private void extraerDatos(){
         int i,j;
         String regex;
-        Matcher m1,m2;
+        Matcher m1,m2,m3;
         Pattern patron;
         
         //Reaordenar y extrae el nombre en formato ApellidoP ApellidoM Nombre
@@ -75,7 +93,32 @@ public class Modificador {
             m2.find();
             this.personas[i][3] = m2.group();
         }
-
+        
+        //Extraer Estado
+        patron = Pattern.compile("AGUASCALIENTES|BAJA\\sCALIFORNIA|BAJA\\sCALIFORNIA\\sSUR|CAMPECHE|CHIAPAS|CHIHUAHUA|CIUDAD\\sDE\\sMEXICO|COAHUILA|COLIMA|DURANGO|GUANAJUATO|GUERRERO|HIDALGO|JALISCO|ESTADO\\sMEXICO|MICHOACAN|MORELOS|NAYARIT|NUEVO\\sLEON|OAXACA|PUEBLA|QUERETARO|QUINTANA\\sROO|SAN\\sLUIS\\sPOTOSI|SINALOA|TABASCO|TAMAULIPAS|TLAXCALA|VERACTRUZ|YUCATAN|ZACATECAS");
+        for(i=0;i<this.numeroPersonas+1;i++){
+            m3 = patron.matcher(this.personas[i][0]);
+            m3.find();
+            String estado = m3.group();
+            this.personas[i][4] = EnumEstado.valueOf(estado).getValor();
+        }
+            
+    }
+    
+    private int[] contarEstados(){
+        int i;
+        int contadorEstados [] = new int[32];
+        for(i = 0;i<this.numeroPersonas+1;i++){
+            if(!this.personas[i][4].equals("0")){
+               contadorEstados[Integer.parseInt(this.personas[i][4])-1]++; 
+            }
+        }
+        return contadorEstados;
+    }
+    
+    //Formatear nombre para estar en tipo oracion
+    private void formatearNombre(){
+        
     }
     //Cambia el formato de la fecha a dd/mm/aaaa
     private String formatearFecha(String fecha){
