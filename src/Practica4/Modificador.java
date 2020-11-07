@@ -35,6 +35,8 @@ public class Modificador {
         
         this.ordenamiento(a);
         
+        this.formatearNombre();
+        
         int[] Estados;
         String[] nomEstados = new String[32];
         EnumEstado[] estados = EnumEstado.values();
@@ -118,7 +120,30 @@ public class Modificador {
     
     //Formatear nombre para estar en tipo oracion
     private void formatearNombre(){
-        
+        String modificada;
+        char c = ' ';
+        int i;
+        int aux = 0;
+        for(i=0;i<this.numeroPersonas+1;i++){
+            modificada = "";
+           for(int j=0;j<this.personas[i][1].length();j++){
+                c = this.personas[i][1].charAt(j);
+                if(j == 0){
+                    c = Character.toUpperCase(c);
+                }
+                if(j>=1){
+                    c = Character.toLowerCase(c);
+                    if( c == ' '){
+                        aux = j+1;
+                    }
+                }
+                if(aux == j){
+                    c = Character.toUpperCase(c);
+                }
+                modificada += c;
+           }
+           this.personas[i][1] = modificada;
+        }
     }
     //Cambia el formato de la fecha a dd/mm/aaaa
     private String formatearFecha(String fecha){
