@@ -190,6 +190,7 @@ class CiudadanoDaoImp implements CiudadanoDao {
 	 */
 	private void extraerCiudadanos(String actas) {
 		String acta = "";
+		Ciudadano ciudadano;
 		int nSaltos = 0;
 
 		for (char chr: actas.toCharArray()) {
@@ -198,7 +199,10 @@ class CiudadanoDaoImp implements CiudadanoDao {
 				nSaltos++;
 			if (nSaltos == 5) {
 				nSaltos = 0;
-				this.ciudadanos.add(this.ciudadanoFactory.getCiudadano(acta));
+				 ciudadano = this.ciudadanoFactory.getCiudadano(acta);
+				if (ciudadano != null) {
+					this.ciudadanos.add(ciudadano);
+				}
 				acta = "";
 			}
 		}
@@ -226,31 +230,36 @@ class CiudadanoFactory {
 		Matcher comparador;
 		Pattern patron;
 
-		regex = "( (\\w*) (\\w*) (\\w*))";
-		patron = Pattern.compile(regex);
-		comparador = patron.matcher(acta);
-		comparador.find();
-		nombre = comparador.group(2);
-		apellidoPaterno = comparador.group(3);
-		apellidoMaterno = comparador.group(4);
-		
-		regex = "\\d{1,2}\\s\\w{4,10}\\s\\d{4}";
-		patron = Pattern.compile(regex);
-		comparador = patron.matcher(acta);
-		comparador.find();
-		fechaNacimiento = comparador.group();
+		try {
+			regex = "( (\\w*) (\\w*) (\\w*))";
+			patron = Pattern.compile(regex);
+			comparador = patron.matcher(acta);
+			comparador.find();
+			nombre = comparador.group(2);
+			apellidoPaterno = comparador.group(3);
+			apellidoMaterno = comparador.group(4);
+			
+			regex = "\\d{1,2}\\s\\w{4,10}\\s\\d{4}";
+			patron = Pattern.compile(regex);
+			comparador = patron.matcher(acta);
+			comparador.find();
+			fechaNacimiento = comparador.group();
 
-		regex = "\\w{5,6}(INO)";
-		patron = Pattern.compile(regex);
-		comparador = patron.matcher(acta);
-		comparador.find();
-		sexo = comparador.group().toLowerCase();
+			regex = "\\w{5,6}(INO)";
+			patron = Pattern.compile(regex);
+			comparador = patron.matcher(acta);
+			comparador.find();
+			sexo = comparador.group().toLowerCase();
 
-		regex = "((\\w*), (\\w*), (\\w*))";
-		patron = Pattern.compile(regex);
-		comparador = patron.matcher(acta);
-		comparador.find();
-		estadoNacimiento = comparador.group(3);
+			regex = "((\\w*), (\\w*), (\\w*))";
+			patron = Pattern.compile(regex);
+			comparador = patron.matcher(acta);
+			comparador.find();
+			estadoNacimiento = comparador.group(3);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
 		return new Ciudadano(StringHelper.capitalize(nombre),
 			       	StringHelper.capitalize(apellidoPaterno),
@@ -403,13 +412,18 @@ class FechaHelper {
 		Matcher comparador;
 		Pattern patron;
 
-		regex = "((\\d*) (\\w*) (\\d*))";
-		patron = Pattern.compile(regex);
-		comparador = patron.matcher(fecha);
-		comparador.find();
-		dia = comparador.group(2);
-		mes = comparador.group(3);
-		año = comparador.group(4);
+		try {
+			regex = "((\\d*) (\\w*) (\\d*))";
+			patron = Pattern.compile(regex);
+			comparador = patron.matcher(fecha);
+			comparador.find();
+			dia = comparador.group(2);
+			mes = comparador.group(3);
+			año = comparador.group(4);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "00/00/00";
+		}
 
 		return String.format("%s/%s/%s", dia, FechaHelper.parseMonth(mes), año);
 	}
@@ -424,7 +438,11 @@ class FechaHelper {
 	 * @see String.format()
 	 */
 	public static String parseMonth(String month) {
-		return String.format("%02d", EnumMes.valueOf(month).getNumMes());
+		try {
+			return String.format("%02d", EnumMes.valueOf(month).getNumMes());
+		} catch (Exception e) {
+			return "00";
+		}
 	}
 }
 
